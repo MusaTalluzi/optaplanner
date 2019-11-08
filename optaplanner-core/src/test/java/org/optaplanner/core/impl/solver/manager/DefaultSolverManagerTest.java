@@ -31,7 +31,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.After;
 import org.junit.Before;
@@ -157,7 +156,6 @@ public class DefaultSolverManagerTest {
                 });
     }
 
-
     // ****************************
     // Reactive
     // ****************************
@@ -170,18 +168,19 @@ public class DefaultSolverManagerTest {
         Properties properties = new Properties();
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SolutionKafkaDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "optaplanner-test-groupId-" + tenantId);
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
 
-        KafkaConsumer<Long, String> consumer = new KafkaConsumer<>(properties);
+        KafkaConsumer<String, TestdataSolution> consumer = new KafkaConsumer<>(properties);
         consumer.subscribe(Collections.singleton("optaplanner-test-topic-" + tenantId));
-        ConsumerRecords<Long, String> records = consumer.poll(Duration.ofSeconds(5));
+        ConsumerRecords<String, TestdataSolution> records = consumer.poll(Duration.ofSeconds(5));
         assertFalse(records.isEmpty());
         for (ConsumerRecord record : records) {
-            System.out.println(record);
+            assertTrue(record.value() instanceof TestdataSolution);
+            TestdataSolution consumed_solution = (TestdataSolution) record.value();
+            assertEquals(consumed_solution.getCode(), problem.getCode());
         }
-
     }
 
     // ****************************
