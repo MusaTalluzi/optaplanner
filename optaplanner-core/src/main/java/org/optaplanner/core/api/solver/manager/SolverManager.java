@@ -181,6 +181,12 @@ public interface SolverManager<Solution_> extends AutoCloseable {
             Consumer<Solution_> onSolvingEnded,
             Consumer<Throwable> onException);
 
+    void solveReactive(
+            Object problemId,
+            Solution_ planningProblem,
+            String bootstrapServers
+    );
+
     /**
      * Notifies the solver that it should stop at its earliest convenience.
      * Note that after calling this method there will be no reference for problemId in the {@link SolverManager}.

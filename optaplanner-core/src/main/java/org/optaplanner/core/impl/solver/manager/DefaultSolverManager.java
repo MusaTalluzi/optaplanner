@@ -19,6 +19,7 @@ package org.optaplanner.core.impl.solver.manager;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +31,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.optaplanner.core.api.score.constraint.Indictment;
 import org.optaplanner.core.api.solver.SolverFactory;
 import org.optaplanner.core.api.solver.manager.SolverManager;
@@ -145,6 +151,46 @@ public class DefaultSolverManager<Solution_> implements SolverManager<Solution_>
             Solution_ planningProblem,
             Consumer<Solution_> onBestSolutionChangedEvent,
             Consumer<Solution_> onSolvingEnded) {
+        solve(problemId, planningProblem, onBestSolutionChangedEvent, onSolvingEnded, null);
+    }
+
+    @Override
+    public void solveReactive(
+            Object problemId,
+            Solution_ planningProblem,
+            String bootstrapServers) {
+
+        Properties properties = new Properties();
+        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+        final KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
+
+        Consumer<Solution_> onBestSolutionChangedEvent = newBestSolution -> {
+            String topic = "optaplanner-test-topic-" + problemId;
+            logger.info("Producing a record to topic " + topic);
+            ProducerRecord<String, String> record = new ProducerRecord<>(topic, problemId.toString(), "New best solution");
+            logger.info("sending record");
+            producer.send(record, (recordMetadata, e) -> {
+                if (e == null) {
+                    logger.info("Received new metadata. \n"
+                                        + "Topic: " + recordMetadata.topic() + "\n"
+                                        + "Partition: " + recordMetadata.partition() + "\n"
+                                        + "Offset: " + recordMetadata.offset() + "\n"
+                                        + "Timestamp: " + recordMetadata.timestamp());
+                } else {
+                    logger.error("Error while producing", e);
+                }
+            });
+        };
+        Consumer<Solution_> onSolvingEnded = newBestSolution -> {
+            logger.info("Final record production");
+            ProducerRecord<String, String> record = new ProducerRecord<>("optaplanner-test-topic-" + problemId, problemId.toString(), "Solving ended");
+            producer.send(record);
+            producer.flush();
+            producer.close();
+        };
         solve(problemId, planningProblem, onBestSolutionChangedEvent, onSolvingEnded, null);
     }
 
