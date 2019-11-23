@@ -17,6 +17,8 @@
 package org.optaplanner.spring.boot.example.domain;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -28,6 +30,7 @@ public class Room {
 
     @PlanningId
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @NotNull
     private Long id;
 
@@ -37,8 +40,7 @@ public class Room {
     private Room() {
     }
 
-    public Room(Long id, String name) {
-        this.id = id;
+    public Room(String name) {
         this.name = name.trim();
     }
 

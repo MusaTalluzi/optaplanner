@@ -17,6 +17,8 @@
 package org.optaplanner.spring.boot.example.domain;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotBlank;
@@ -32,6 +34,7 @@ public class Lesson {
 
     @PlanningId
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @NotNull
     private Long id;
 
@@ -52,8 +55,7 @@ public class Lesson {
     private Lesson() {
     }
 
-    public Lesson(long id, String subject, String teacher, String studentGroup) {
-        this.id = id;
+    public Lesson(String subject, String teacher, String studentGroup) {
         this.subject = subject.trim();
         this.teacher = teacher.trim();
         this.studentGroup = studentGroup.trim();

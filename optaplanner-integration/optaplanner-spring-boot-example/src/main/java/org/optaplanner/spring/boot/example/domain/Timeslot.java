@@ -20,10 +20,11 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 @Entity
@@ -31,23 +32,21 @@ public class Timeslot {
 
     @PlanningId
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @NotNull
     private Long id;
 
     @NotNull
     private DayOfWeek dayOfWeek;
     @NotNull
-    @JsonFormat(pattern = "hh:mm")
     private LocalTime startTime;
     @NotNull
-    @JsonFormat(pattern = "hh:mm")
     private LocalTime endTime;
 
     private Timeslot() {
     }
 
-    public Timeslot(Long id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        this.id = id;
+    public Timeslot(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;

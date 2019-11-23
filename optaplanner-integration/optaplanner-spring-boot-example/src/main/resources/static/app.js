@@ -19,7 +19,8 @@ var autoRefreshIntervalId = null;
 
 function refreshTimeTable() {
     $.getJSON("/timeTable", function (timeTable) {
-        $("#score").text("Score: "+ (timeTable.score == null ? "?" : timeTable.score));
+        $("#score").text("Score: "+ (timeTable.score == null ? "?"
+                : `(${timeTable.score.initScore}init/${timeTable.score.hardScore}hard/${timeTable.score.softScore}soft)`));
 
         var timeTableByRoom = $("#timeTableByRoom");
         timeTableByRoom.children().remove();

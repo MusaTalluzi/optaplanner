@@ -16,8 +16,6 @@
 
 package org.optaplanner.spring.boot.example.service;
 
-import java.util.Comparator;
-
 import org.optaplanner.spring.boot.example.domain.Lesson;
 import org.optaplanner.spring.boot.example.domain.Room;
 import org.optaplanner.spring.boot.example.domain.TimeTable;
