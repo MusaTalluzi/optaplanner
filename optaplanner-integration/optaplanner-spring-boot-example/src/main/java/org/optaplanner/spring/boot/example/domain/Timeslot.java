@@ -18,16 +18,21 @@ package org.optaplanner.spring.boot.example.domain;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
+@Entity
 public class Timeslot {
 
     @PlanningId
+    @Id
     @NotNull
-    private long id;
+    private Long id;
 
     @NotNull
     private DayOfWeek dayOfWeek;
@@ -41,14 +46,14 @@ public class Timeslot {
     private Timeslot() {
     }
 
-    public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+    public Timeslot(Long id, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
         this.id = id;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

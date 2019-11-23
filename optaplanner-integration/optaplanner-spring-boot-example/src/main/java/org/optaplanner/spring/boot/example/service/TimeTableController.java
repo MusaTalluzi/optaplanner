@@ -42,8 +42,19 @@ public class TimeTableController {
     @Autowired
     SolverManager<TimeTable> solverManager;
 
-    private AtomicReference<TimeTable> timeTableReference = new AtomicReference<>(generateProblem());
+    private AtomicReference<TimeTable> timeTableReference;
     private SolverFuture solverFuture = null;
+
+    private final RoomService roomService;
+    private final TimeslotService timeslotService;
+    private final LessonService lessonService;
+
+    public TimeTableController(RoomService roomService, TimeslotService timeslotService, LessonService lessonService) {
+        this.roomService = roomService;
+        this.timeslotService = timeslotService;
+        this.lessonService = lessonService;
+        timeTableReference = new AtomicReference<>(generateProblem());
+    }
 
     // To try, open http://localhost:8080/timeTable
     @RequestMapping()
@@ -111,12 +122,14 @@ public class TimeTableController {
         timeslotList.add(new Timeslot(timeslotId++, DayOfWeek.TUESDAY, LocalTime.of(10, 30), LocalTime.of(11, 30)));
         timeslotList.add(new Timeslot(timeslotId++, DayOfWeek.TUESDAY, LocalTime.of(13, 30), LocalTime.of(14, 30)));
         timeslotList.add(new Timeslot(timeslotId++, DayOfWeek.TUESDAY, LocalTime.of(14, 30), LocalTime.of(15, 30)));
+        timeslotService.createTimeslots(timeslotList);
 
         List<Room> roomList = new ArrayList<>(3);
         long roomId = 1L;
         roomList.add(new Room(roomId++, "Room A"));
         roomList.add(new Room(roomId++, "Room B"));
         roomList.add(new Room(roomId++, "Room C"));
+        roomService.createRooms(roomList);
 
         List< Lesson > lessonList = new ArrayList<>();
         long lessonId = 1L;
@@ -148,6 +161,7 @@ public class TimeTableController {
         lessonList.get(5).setRoom(roomList.get(1));
         lessonList.get(6).setTimeslot(timeslotList.get(3));
         lessonList.get(6).setRoom(roomList.get(1));
+        lessonService.createLessons(lessonList);
 
         return new TimeTable(timeslotList, roomList, lessonList);
     }

@@ -16,16 +16,20 @@
 
 package org.optaplanner.spring.boot.example.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
+@Entity
 public class Room {
 
     @PlanningId
+    @Id
     @NotNull
-    private long id;
+    private Long id;
 
     @NotBlank
     private String name;
@@ -33,12 +37,12 @@ public class Room {
     private Room() {
     }
 
-    public Room(long id, String name) {
+    public Room(Long id, String name) {
         this.id = id;
         this.name = name.trim();
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
